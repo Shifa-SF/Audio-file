@@ -16,6 +16,10 @@ engine = pyttsx3.init()
 # Start webcam
 cap = cv2.VideoCapture(0)
 
+
+# Set frame size (increase resolution)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1000)   # You can change to 1920
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1000)   # You can change to 1080
 last_gesture = None
 last_time = 0
 cooldown = 1.5  # seconds
@@ -50,8 +54,14 @@ def get_gesture(hand_landmarks):
     dist_ok = math.dist((thumb_tip.x, thumb_tip.y), (index_tip.x, index_tip.y))
 
     # Gesture detection
-    if index_up and middle_up and ring_up and pinky_up and thumb_up:
-        return "Hello"  # Open palm
+    if index_up and middle_up and not ring_up and not pinky_up :
+        return "victory"  # index + middle up
+    elif index_up and not middle_up and not ring_up and not pinky_up:
+        return "One"  # ☝ single finger
+    elif not thumb_up and not index_up and not middle_up and not ring_up and thumb_tip.y > thumb_ip.y:
+        return "Bad"           # 👎 thumb down
+    elif not index_up and not middle_up and not ring_up and not pinky_up and not thumb_up:
+        return "Power"  # ✊ closed fist
     elif thumb_up and not index_up and not middle_up and not ring_up and pinky_up:
         return "Call me"  # 🤙 thumb + pinky
     elif dist_ok < 0.05 and middle_up and ring_up and pinky_up:
@@ -61,7 +71,7 @@ def get_gesture(hand_landmarks):
     elif index_up and not middle_up and not ring_up and pinky_up:
         return "Rock on"  # 🤘 index + pinky
     else:
-        return "Not recognized input"
+        return "Gesture unknown maybe it's an Alien Language !"
 
 while True:
     ret, frame = cap.read()
